@@ -1,0 +1,16 @@
+{
+  "generator-easy-ui5": {
+    "projectname": "headcount",
+    "namespace": "com.tsmc",
+    "platform": "Cloud Foundry HTML5 Application Repository",
+    "viewtype": "XML",
+    "viewname": "MainView",
+    "ui5libs": "Content delivery network (SAPUI5)",
+    "newdir": true,
+    "namespaceURI": "com/tsmc",
+    "uimodules": [
+      "uimodule"
+    ],
+    "setupCompleted": true
+  }
+}
