@@ -1,8 +1,27 @@
 {
   "welcomeFile": "comtsmcheadcount/",
-  "authenticationMethod": "none",
+  "authenticationMethod": "route",
   "logout": {
     "logoutEndpoint": "/do/logout"
   },
-  "routes": []
+  "routes": [
+    {
+      "source": "^/hc(.*)$",
+      "destination": "mainservice",
+      "csrfProtection": false,
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/ou(.*)$",
+      "destination": "mainservice",
+      "csrfProtection": false,
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/excel(.*)$",
+      "destination": "mainservice",
+      "csrfProtection": false,
+      "authenticationType": "none"
+    }
+  ]
 }

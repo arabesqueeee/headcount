@@ -27,12 +27,11 @@
     }
   },
   "sap.ui5": {
-    "flexEnabled": true,
     "rootView": {
       "viewName": "com.tsmc.headcount.view.MainView",
       "type": "XML",
       "async": true,
-      "id": "idAppControl"
+      "id": "fcl"
     },
     "dependencies": {
       "minUI5Version": "1.60.0",
@@ -41,6 +40,9 @@
         "sap.m": {},
         "sap.ui.layout": {}
       }
+    },
+    "config": {
+      "fullWidth": true
     },
     "contentDensities": {
       "compact": true,
@@ -66,25 +68,36 @@
         "routerClass": "sap.m.routing.Router",
         "viewType": "XML",
         "viewPath": "com.tsmc.headcount.view",
-        "controlId": "idAppControl",
-        "controlAggregation": "pages",
+        "controlId": "fcl",
+        "transition": "slide",
+        "bypassed": {},
         "async": true
       },
       "routes": [
         {
-          "name": "RouteMainView",
-          "pattern": "RouteMainView",
+          "pattern": ":layout:",
+          "name": "master",
           "target": [
-            "TargetMainView"
+            "master"
+          ]
+        },
+        {
+          "pattern": "detail/{product}/{layout}",
+          "name": "detail",
+          "target": [
+            "master",
+            "detail"
           ]
         }
       ],
       "targets": {
-        "TargetMainView": {
-          "viewType": "XML",
-          "viewLevel": 1,
-          "viewId": "idAppControl",
-          "viewName": "MainView"
+        "master": {
+          "viewName": "Master",
+          "controlAggregation": "beginColumnPages"
+        },
+        "detail": {
+          "viewName": "Detail",
+          "controlAggregation": "midColumnPages"
         }
       }
     }

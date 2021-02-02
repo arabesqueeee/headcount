@@ -1,0 +1,30 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:l="sap.ui.layout">
+    <Dialog title="增加组织信息" id="addOrg">
+        <f:SimpleForm
+        editable="true" >
+            <f:content>
+                <Label text="年度"/>
+                <DatePicker
+            value="{addOrg>/Year}"
+			id="odateYear"
+			displayFormat="yyyy"
+			class="sapUiSmallMarginBottom" 
+            width="60%"></DatePicker>
+                <Label text="季度"/>
+                <Input id="Quarter"  value="{addOrg>/Quarter}"  enabled = "false"	showValueHelp="true" 	valueHelpRequest=".onValueHelpRequest"/>
+                <Label text="组织ID"/>
+                <Input id="OrgID" 	placeholder="輸入組織ID"  value="{addOrg>/OrgID}"	showValueHelp="true" 	valueHelpRequest=".onValueHelpRequest"/>
+                <Label text="员工ID"/>
+                <Input id="EmpID" 	placeholder="輸入負責人ID" 	value="{addOrg>/EmpID}" showValueHelp="true" 	valueHelpRequest=".onValueHelpRequest"/>
+            </f:content>
+        </f:SimpleForm>
+        <buttons>
+            <Button text="確認" press="confirmOrgDialog"/>
+            <Button text="取消" press="closeDialog"/>
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>

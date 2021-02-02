@@ -1,0 +1,28 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:l="sap.ui.layout">
+    <Dialog title="創建員額期間" id="createYear">
+        <f:SimpleForm
+        editable="true"       >
+            <f:content>
+                <Label text="年度"/>
+                <DatePicker
+			id="dateYearForYear"
+			displayFormat="yyyy"
+			class="sapUiSmallMarginBottom"
+            width="60%"></DatePicker>
+                <Label text="期間狀態"/>
+                <Select id="statusSelectForYear" forceSelection="true" items="{ path:'status>/list', sorter: { path: 'status>/list/Id' } }"
+                                                     enabled="{edi>/oeditable}" width="60%">
+                    <core:Item key="{status>Id}" text="{status>Text}"/>
+                </Select>
+            </f:content>
+        </f:SimpleForm>
+        <buttons>
+            <Button text="確認" press="createYear"/>
+            <Button text="取消" press="closeDialog"/>
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>

@@ -19,13 +19,13 @@ server:
     - name: ui5-middleware-livereload
       afterMiddleware: compression
       configuration:
-        port: 35729
+        port: 35730
         path: uimodule/webapp
     - name: ui5-middleware-cfdestination
       afterMiddleware: compression
       configuration:
         debug: true
-        port: 1091
+        port: 1092
         xsappJson: uimodule/webapp/xs-app.json
         destinations: []
 builder:

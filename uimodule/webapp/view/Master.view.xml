@@ -1,0 +1,420 @@
+<mvc:View controllerName="com.tsmc.headcount.controller.Master"
+    xmlns:form="sap.ui.layout.form"
+    xmlns:core="sap.ui.core"
+    xmlns:u="sap.ui.unified"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:l="sap.ui.layout"
+    xmlns:ui="sap.ui.table"	>
+    <App id="idAppControl" >
+        <pages>
+            <Page
+				id="wizardContentPage"
+				showHeader="false">
+                <IconTabBar
+		id="idIconTabBar"
+		select="outsideFilterSelect"
+        headerBackgroundDesign="Transparent" 
+		class="sapUiResponsiveContentPadding">
+                    <items>
+                        <IconTabFilter
+				icon="sap-icon://begin" 
+				text="期間與填報人維護"  
+                design="Horizontal"
+				key="set" >
+                            <form:SimpleForm editable="true" title="1.開啟填報H/C功能" layout="ResponsiveGridLayout" columnsXL="1" columnsL="1" columnsM="1"  >
+                                <Label text="設定填報類型"/>
+                                <ComboBox id = "comType"  
+                                    selectionChange="typeChange"
+                                    items="{
+					                        path: 'type>/list',
+				                        	sorter: { path: 'text' }
+			                        	}">
+                                    <core:Item key="{type>Id}" text="{type>Id} {type>Text}" />
+                                    <layoutData>
+                                        <l:GridData span="XL2 L2 M2 S12" />
+                                    </layoutData>
+                                </ComboBox>
+                            </form:SimpleForm>
+                            <form:SimpleForm  id="forQuarter" editable="true" layout="ResponsiveGridLayout" columnsXL="1" columnsL="1" columnsM="1"  >
+                                <Label text="期間"/>
+                                <ComboBox id = "comQuarter" valueStateText="修改期間狀態時請先選擇期間"
+                                    selectionChange="additionalCheck"
+                                    items="{
+					                        path: 'combox>/QuarterCollection',
+				                        	sorter: { path: 'text' }
+			                        	}">
+                                    <core:Item key="{combox>year}{combox>quarter}" text="{combox>year}{combox>quarter} {combox>active}" />
+                                    <layoutData>
+                                        <l:GridData span="XL2 L2 M2 S12" />
+                                    </layoutData>
+                                </ComboBox>
+                                <Button  icon="sap-icon://write-new" text= "修改期間" press="onChangePeriod">
+                                    <layoutData>
+                                        <l:GridData span="XL1 L1 M1 S12" />
+                                    </layoutData>
+                                </Button>
+                                <Button icon="sap-icon://create" text="創建區間" press="onCreatePeriod">
+                                    <layoutData>
+                                        <l:GridData span="XL1 L1 M1 S12" />
+                                    </layoutData>
+                                </Button>
+                            </form:SimpleForm>
+                            <form:SimpleForm id="forYear" editable="true" layout="ResponsiveGridLayout" columnsXL="1" columnsL="1" columnsM="1"  >
+                                <Label text="年度"/>
+                                <ComboBox 	id="comYear"  valueStateText="修改期間狀態時請先選擇期間"
+                                    selectionChange="additionalCheck"
+                                    items="{
+					                        path: 'comyear>/YearCollection'
+			                        	}">
+                                    <core:Item key="{comyear>year}" text="{comyear>year} {comyear>status}" />
+                                    <layoutData>
+                                        <l:GridData span="XL1 L1 M1 S12" />
+                                    </layoutData>
+                                </ComboBox>
+                                <Button  icon="sap-icon://write-new" text= "修改年度狀態" press="onChangeYear">
+                                    <layoutData>
+                                        <l:GridData span="XL2 L2 M2 S12" />
+                                    </layoutData>
+                                </Button>
+                                <Button icon="sap-icon://create" text="創建年度計畫" press="onCreateYear">
+                                    <layoutData>
+                                        <l:GridData span="XL2 L2 M2 S12" />
+                                    </layoutData>
+                                </Button>
+                            </form:SimpleForm>
+                            <Panel  id="step2" visible="false" headerText="2.設定填報H/C的第一層組織與填報人" width="auto" >
+                                <content>
+                                    <IconTabBar   id="idOuTabBar" select="onFilterSelect" 	class="sapUiResponsiveContentPadding">
+                                        <items>
+                                            <IconTabFilter  text="組織數據填報" key="cteOrg" 	icon="sap-icon://begin" 	iconColor="Positive" >
+                                                <MessageStrip class="sapUiSmallMarginBottom" 	text="請點擊此處下載上傳模板" 	showIcon="true">
+                                                    <link>
+                                                        <Link text="下載模板"  press="handleDownloadTemplate" />
+                                                    </link>
+                                                </MessageStrip>
+                                                <form:SimpleForm editable="true" layout="ResponsiveGridLayout" columnsXL="1" columnsL="1" columnsM="1">
+                                                    <Label text="Excel上載">
+                                                        <layoutData>
+                                                            <l:GridData span="XL2 L2 M2 S12" />
+                                                        </layoutData>
+                                                    </Label>
+                                                    <u:FileUploader
+			      			            width="400px"
+			      		            	style="Emphasized" 
+                                        id="fileUploader"
+                                        name="file"
+                                        uploadOnChange="true"
+                                        sendXHR="true"
+                                     
+                                        uploadComplete="handleUploadComplete"
+                                        fileType="xlsx,xls"
+				      	            	placeholder="選擇文件上載">
+                                        
+                                    </u:FileUploader>
+                                                </form:SimpleForm>
+                                                <ui:Table
+                	                rows="{Org>/OrgCollection}"
+				                    selectionMode="Single"
+				                    paste="onPaste"
+                                    id="orgCollection"
+				                    ariaLabelledBy="title">
+                                                    <ui:extension>
+                                                        <OverflowToolbar class="sapMTBHeader-CTX">
+                                                            <ToolbarSpacer/>
+                                                            <Button icon="sap-icon://add" press="onAddRow" type="Transparent" id="onaddButton" text="增加"/>
+                                                            <Button icon="sap-icon://sys-minus" press="onRemoveRow" id="onremoveButton" type="Transparent" text="刪除"/>
+                                                            <!-- <Button icon="sap-icon://arrow-top" press="onReleaseRow" id="onreleaseButton"   type="Emphasized" text="發布"/> -->
+                                                        </OverflowToolbar>
+                                                    </ui:extension>
+                                                    <ui:Column >
+                                                        <Label text="年份" />
+                                                        <ui:template>
+                                                            <Text text="{Org>year}"/>
+                                                        </ui:template>
+                                                    </ui:Column>
+                                                    <ui:Column >
+                                                        <Label text="季度" />
+                                                        <ui:template>
+                                                            <Text text="{Org>quarter}"/>
+                                                        </ui:template>
+                                                    </ui:Column>
+                                                    <ui:Column >
+                                                        <Label text="組織單位" />
+                                                        <ui:template>
+                                                            <Text text="{Org>org}"/>
+                                                        </ui:template>
+                                                    </ui:Column>
+                                                    <ui:Column >
+                                                        <Label text="組織單位" />
+                                                        <ui:template>
+                                                            <Text text="{Org>orgName}"/>
+                                                        </ui:template>
+                                                    </ui:Column>
+                                                    <ui:Column >
+                                                        <Label text="預設填報人" />
+                                                        <ui:template>
+                                                            <Text text="{Org>empId}"/>
+                                                        </ui:template>
+                                                    </ui:Column>
+                                                    <ui:Column >
+                                                        <Label text="預設填報人" />
+                                                        <ui:template>
+                                                            <Text text="{Org>userName}"/>
+                                                        </ui:template>
+                                                    </ui:Column>
+                                                    <ui:Column visible="false" >
+                                                        <Label text="id" />
+                                                        <ui:template>
+                                                            <Text text="{Org>empId}"/>
+                                                        </ui:template>
+                                                    </ui:Column>
+                                                </ui:Table>
+                                            </IconTabFilter>
+                                            <IconTabSeparator />
+                                            <IconTabFilter icon="sap-icon://compare" iconColor="Critical" 
+				                               text="組織數據查看"
+			                                	key="disOrg" >
+                                                <ui:Table
+                	                rows="{Orglist>/OrgCollection}"
+                                    visibleRowCount="{= ${Orglist>/OrgCollection}.length}"
+                                  
+                                    id="orgListCollection"
+				                    ariaLabelledBy="title">
+                                                    <ui:extension>
+                                                        <OverflowToolbar class="sapMTBHeader-CTX">
+                                                            <ToolbarSpacer/>
+                                                            <Button icon="sap-icon://add" press="onAddRow" type="Transparent"   text="增加"/>
+                                                            <Button icon="sap-icon://sys-minus" press="onRemoveRow"   type="Transparent" text="刪除"/>
+                                                            <!-- <Button icon="sap-icon://arrow-top" press="onReleaseRow" id="onreleaseButton"   type="Emphasized" text="發布"/> -->
+                                                        </OverflowToolbar>
+                                                    </ui:extension>
+                                                    <ui:Column >
+                                                        <Label text="年份" />
+                                                        <ui:template>
+                                                            <Text text="{Orglist>year}"/>
+                                                        </ui:template>
+                                                    </ui:Column>
+                                                    <ui:Column >
+                                                        <Label text="季度" />
+                                                        <ui:template>
+                                                            <Text text="{Orglist>quarter}"/>
+                                                        </ui:template>
+                                                    </ui:Column>
+                                                    <ui:Column >
+                                                        <Label text="組織單位" />
+                                                        <ui:template>
+                                                            <Text text="{Orglist>org}"/>
+                                                        </ui:template>
+                                                    </ui:Column>
+                                                    <ui:Column >
+                                                        <Label text="組織單位" />
+                                                        <ui:template>
+                                                            <Text text="{Orglist>orgName}"/>
+                                                        </ui:template>
+                                                    </ui:Column>
+                                                    <ui:Column >
+                                                        <Label text="預設填報人" />
+                                                        <ui:template>
+                                                            <Text text="{Orglist>empId}"/>
+                                                        </ui:template>
+                                                    </ui:Column>
+                                                    <ui:Column >
+                                                        <Label text="預設填報人" />
+                                                        <ui:template>
+                                                            <Text text="{Orglist>userName}"/>
+                                                        </ui:template>
+                                                    </ui:Column>
+                                                    <ui:Column visible="false" >
+                                                        <Label text="id" />
+                                                        <ui:template>
+                                                            <Text text="{Orglist>empId}"/>
+                                                        </ui:template>
+                                                    </ui:Column>
+                                                </ui:Table>
+                                            </IconTabFilter>
+                                        </items>
+                                    </IconTabBar>
+                                </content>
+                            </Panel>
+                        </IconTabFilter>
+                        <IconTabSeparator icon="sap-icon://process"/>
+                        <IconTabFilter
+				icon="sap-icon://inventory" 
+				text="員額調整"
+                design="Horizontal"
+				key="report" >
+                            <form:SimpleForm  layout="ResponsiveGridLayout" columnsXL="1" columnsL="1" columnsM="1">
+                                <Label required="true" text="選擇調整期間">
+                                    <layoutData>
+                                        <l:GridData span="XL1 L1 M1 S12" />
+                                    </layoutData>
+                                </Label>
+                                <ComboBox id = "adjPeriod" 
+                                    selectionChange="adjQuarterChange"
+                                    items="{
+					                        path: 'adjPeriod>/list',
+				                        	sorter: { path: 'text' }
+			                        	}">
+                                    <core:Item key="{adjPeriod>Id}" text="{adjPeriod>Text}" />
+                                    <layoutData>
+                                        <l:GridData span="XL2 L2 M2 S12" />
+                                    </layoutData>
+                                </ComboBox>
+                            </form:SimpleForm>
+                            <ui:Table
+                	                rows="{adjust>/OrgCollection}"
+				                    selectionMode="Single" 
+                                    visibleRowCount="{= ${adjust>/OrgCollection}.length}"
+                                    id="adjustTable"
+				                    ariaLabelledBy="title">
+                                <ui:extension>
+                                    <OverflowToolbar>
+                                        <ToolbarSpacer/>
+                                        <Button icon="sap-icon://synchronize" tooltip="調整員額後請刷新" press="onRefresh" type="Transparent" id="onRefresh" text="刷新"/>
+                                        <Button icon="sap-icon://employee-rejections" press="onRetrieve" type="Transparent" id="onRetrieve" text="退回"/>
+                                        <Button icon="sap-icon://save" press="onSubmit" type="Transparent" id="onSubmit" text="提交"/>
+                                    </OverflowToolbar>
+                                </ui:extension>
+                                <ui:Column visible="false" >
+                                    <Label text="id" />
+                                    <ui:template>
+                                        <Text text="{adjust>empId}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column  width="4rem">
+                                    <Label text="年份" />
+                                    <ui:template>
+                                        <Text text="{adjust>year}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column width="3rem">
+                                    <Label text="季度" />
+                                    <ui:template>
+                                        <Text text="{adjust>quarter}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column  width="7rem">
+                                    <Label text="組織單位" />
+                                    <ui:template>
+                                        <Text text="{adjust>org}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column  width="7rem">
+                                    <Label text="組織單位" />
+                                    <ui:template>
+                                        <Text text="{adjust>orgName}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column width="12rem">
+                                    <Label text="DL Budget (上一季budget)" />
+                                    <ui:template>
+                                        <Text text="{adjust>lstDlAdjust}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column width="12rem">
+                                    <Label text="IDL Budget (上一季budget)" />
+                                    <ui:template>
+                                        <Text text="{adjust>lstIdlAdjust}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column width="12rem">
+                                    <Label text="DL Budget (H/C request)" />
+                                    <ui:template>
+                                        <Text  text="{adjust>dlReqBudget}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column width="12rem">
+                                    <Label text="IDL Budget (H/C request)" />
+                                    <ui:template>
+                                        <Text  text="{adjust>idlReqBudget}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column  width="8rem">
+                                    <Label text="DL Justification" />
+                                    <ui:template>
+                                        <Text  text="{adjust>dlJustification}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column width="8rem">
+                                    <Label text="IDL Justification" />
+                                    <ui:template>
+                                        <Text  text="{adjust>idlJustification}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column  width="10rem">
+                                    <Label text="DL Budget (調整)" />
+                                    <ui:template>
+                                        <Input value="{adjust>dlAdjBudget}" type="Number" editable ="{= ${adjust>status} === '05' ? false : true}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column width="10rem">
+                                    <Label text="IDL Budget (調整)" />
+                                    <ui:template>
+                                        <Input value="{adjust>idlAdjBudget}" type="Number" editable ="{= ${adjust>status} === '05' ? false : true}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column width="10rem">
+                                    <Label text="DL Budget (Proposal)" />
+                                    <ui:template>
+                                        <Text text="{adjust>dlBudgetProposal}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column width="10rem">
+                                    <Label text="IDL Budget (Proposal)" />
+                                    <ui:template>
+                                        <Text text="{adjust>idlBudgetProposal}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column width="8rem">
+                                    <Label text="DL Allowance" />
+                                    <ui:template>
+                                        <Input value="{adjust>dlAllowance}" type="Number" editable ="{= ${adjust>status} === '05' ? false : true}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column width="8rem">
+                                    <Label text="IDL Allowance" />
+                                    <ui:template>
+                                        <Input value="{adjust>idlAllowance}" type="Number" editable = "{= ${adjust>status} === '05' ? false : true}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column width="13rem">
+                                    <Label text="HC Budget (Proposal IDL+DL)" />
+                                    <ui:template>
+                                        <Text text="{adjust>finalProposal}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column  width="8rem">
+                                    <Label text="Actual DL" />
+                                    <ui:template>
+                                        <Text text="{adjust>actualDl}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column  width="8rem">
+                                    <Label text="Actual IDL" />
+                                    <ui:template>
+                                        <Text text="{adjust>actualIdl}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column width="8rem">
+                                    <Label text="Actual HC" />
+                                    <ui:template>
+                                        <Text text="{adjust>actualHc}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column width="6rem">
+                                    <Label text="調整記錄" />
+                                    <ui:template>
+                                        <HBox>
+                                            <Button icon="sap-icon://inspection" type="Transparent" press="onListItemPress"/>
+                                        </HBox>
+                                    </ui:template>
+                                </ui:Column>
+                            </ui:Table>
+                        </IconTabFilter>
+                    </items>
+                </IconTabBar>
+            </Page>
+        </pages>
+    </App>
+</mvc:View>
