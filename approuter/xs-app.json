@@ -12,7 +12,19 @@
       "authenticationType": "none"
     },
     {
+      "source": "^/ouadjust(.*)$",
+      "destination": "mainservice",
+      "csrfProtection": false,
+      "authenticationType": "none"
+    },
+    {
       "source": "^/ou(.*)$",
+      "destination": "mainservice",
+      "csrfProtection": false,
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/period(.*)$",
       "destination": "mainservice",
       "csrfProtection": false,
       "authenticationType": "none"
