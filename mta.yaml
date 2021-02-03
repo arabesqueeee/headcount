@@ -42,16 +42,15 @@ modules:
       commands:
         - npm run build:uimodule --prefix ..
       supported-platforms: []
-  - name: user_exem
+  - name: user_headcount
     type: nodejs
-    path: user_exem
+    path: user_headcount
     provides:
       - name: user_api
         properties:
           url: '${default-url}'
     requires:
-      - name: headcount_uaa
-      - name: odata-hdi
+      - name: headcount_uaa 
 resources:
   - name: headcount_destination
     type: org.cloudfoundry.managed-service

@@ -4,7 +4,6 @@ const express = require('express');
 const passport = require('passport');
 const xsenv = require('@sap/xsenv');
 const hana = require('@sap/hana-client');
-const exemObj = require('./service/zlms_app_exem');
 //var hdbext = require('@sap/hdbext');
 
 
