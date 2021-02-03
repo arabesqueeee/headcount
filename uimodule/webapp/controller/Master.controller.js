@@ -76,7 +76,17 @@ sap.ui.define([
             this.byId("forYear").setVisible(false);
             this.byId("adjustTable").setVisible(false);
 
-
+            $.ajax({
+                url: "/user/user",
+                method: "GET",
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    sap.ui.getCore().userid = data.id;
+                },
+                error: function () {
+                }
+            });
         },
         onSearch: function (oEvent) {
             var oTableSearchState = [],

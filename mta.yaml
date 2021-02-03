@@ -14,6 +14,12 @@ modules:
       - name: headcount_destination
       - name: headcount_html5_repo_runtime
       - name: headcount_uaa
+      - name: user_api
+        group: destinations
+        properties:
+          name: user_api
+          url: '~{url}'
+          forwardAuthToken: true
   - name: webapp_deployer
     type: com.sap.application.content
     path: deployer
@@ -36,6 +42,16 @@ modules:
       commands:
         - npm run build:uimodule --prefix ..
       supported-platforms: []
+  - name: user_exem
+    type: nodejs
+    path: user_exem
+    provides:
+      - name: user_api
+        properties:
+          url: '${default-url}'
+    requires:
+      - name: headcount_uaa
+      - name: odata-hdi
 resources:
   - name: headcount_destination
     type: org.cloudfoundry.managed-service
