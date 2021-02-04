@@ -338,6 +338,10 @@ sap.ui.define([
             }
 
             if (selectedPeriod != null) {
+                var type = this.byId("comType").getSelectedKey();
+                var uploadUrl = "/excel/ou/import" + "/WANGYIQIONG" + "/" + type + "/" + selectedPeriod;
+                this.byId("fileUploader").setUploadUrl(uploadUrl);
+
 
                 this._validateInput(this.getView().byId("comQuarter"));
 
@@ -387,11 +391,10 @@ sap.ui.define([
                     this.getView().setModel(new JSONModel(jsn), "Org");
                     this.byId("orgCollection").setVisible(true);
                 }
-
-
             } else {
                 sap.m.MessageToast.show("文件上傳失敗");
             }
+            this.byId("fileUploader").clear();
         },
         handleDownloadTemplate: function () {
             //download upload excel template
@@ -719,20 +722,17 @@ sap.ui.define([
         },
         typeChange: function (oEvent) {
             var type = oEvent.getParameter("selectedItem").getKey()
-            var period;
+
             if (type == '01') {
                 this.byId("forYear").setVisible(true);
                 this.byId("forQuarter").setVisible(false);
-                period = this.byId("comYear").getSelectedKey();
+
             } else if (type == '02') {
                 this.byId("forQuarter").setVisible(true);
                 this.byId("forYear").setVisible(false);
-                period = this.byId("comQuarter").getSelectedKey();
 
             }
 
-            var uploadUrl = "/excel/ou/import" + "/WANGYIQIONG" + "/" + type + "/" + period;
-            this.byId("fileUploader").setUploadUrl(uploadUrl);
             var that = this;
             $.ajax({
                 url: "/period/getAllPeriodListByType/" + type,
