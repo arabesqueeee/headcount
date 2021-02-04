@@ -45,7 +45,7 @@ sap.ui.define([
                 var that = this;
                 var postJson = JSON.stringify(postBody);
                 $.ajax({
-                    url: "http://127.0.0.1:10019/ouadjust/selectOuAdjust",
+                    url: "/ouadjust/selectOuAdjust",
                     method: "POST",
                     dataType: "json",
                     data: postJson,
@@ -107,7 +107,7 @@ sap.ui.define([
             var postJson = JSON.stringify(obj);
             var that = this;
             $.ajax({
-                url: "http://127.0.0.1:10019/ouadjust/createOuAdjustByPrimary",
+                url: "/ouadjust/createOuAdjustByPrimary",
                 method: "POST",
                 dataType: "json",
                 data: postJson,

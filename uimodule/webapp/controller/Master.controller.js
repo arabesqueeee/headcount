@@ -127,7 +127,7 @@ sap.ui.define([
             var postJson = JSON.stringify(postBody);
             $.ajax({
                 //   url: "/hc/period/createPeriod",
-                url: "http://127.0.0.1:10019/period/createPeriodByPrimary",
+                url: "/period/createPeriodByPrimary",
                 method: "POST",
                 dataType: "json",
                 data: postJson,
@@ -208,7 +208,7 @@ sap.ui.define([
             var postJson = JSON.stringify(postBody);
             $.ajax({
                 //   url: "/hc/period/createPeriod",
-                url: "http://127.0.0.1:10019/period/createPeriodByPrimary",
+                url: "/period/createPeriodByPrimary",
                 method: "POST",
                 dataType: "json",
                 data: postJson,
@@ -245,7 +245,7 @@ sap.ui.define([
             var postJson = JSON.stringify(postBody);
             $.ajax({
                 //   url: "/hc/period/createPeriod",
-                url: "http://127.0.0.1:10019/period/updatePeriodByPrimary",
+                url: "/period/updatePeriodByPrimary",
                 method: "POST",
                 dataType: "json",
                 data: postJson,
@@ -275,7 +275,7 @@ sap.ui.define([
             var postJson = JSON.stringify(postBody);
             $.ajax({
                 //   url: "/hc/period/createPeriod",
-                url: "http://127.0.0.1:10019/period/updatePeriodByPrimary",
+                url: "/period/updatePeriodByPrimary",
                 method: "POST",
                 dataType: "json",
                 data: postJson,
@@ -352,7 +352,7 @@ sap.ui.define([
                 var postJson = JSON.stringify(postBody);
                 var that = this;
                 $.ajax({
-                    url: "http://127.0.0.1:10019/ou/selectOUBySearchModelByType/OTHER",
+                    url: "/ou/selectOUBySearchModelByType/OTHER",
                     method: "POST",
                     dataType: "json",
                     data: postJson,
@@ -481,7 +481,7 @@ sap.ui.define([
             var postJson = JSON.stringify(postBody);
             $.ajax({
                 //   url: "/hc/period/createPeriod",
-                url: "http://127.0.0.1:10019/ou/createOUByUnionPrimary",
+                url: "/ou/createOUByUnionPrimary",
                 method: "POST",
                 dataType: "json",
                 data: postJson,
@@ -523,7 +523,7 @@ sap.ui.define([
 
                 $.ajax({
                     //   url: "/hc/period/createPeriod",
-                    url: "http://127.0.0.1:10019/ou/batchDelete",
+                    url: "/ou/batchDelete",
                     method: "POST",
                     dataType: "json",
                     data: postJson,
@@ -570,7 +570,7 @@ sap.ui.define([
                 //根據期間獲取org list STEP 3展示
                 var that = this;
                 $.ajax({
-                    url: "http://127.0.0.1:10019/ou/selectOUBySearchModelByType/OTHER",
+                    url: "/ou/selectOUBySearchModelByType/OTHER",
                     method: "POST",
                     dataType: "json",
                     data: postJson,
@@ -601,7 +601,7 @@ sap.ui.define([
                 var postJson = JSON.stringify(postBody);
                 var that = this;
                 $.ajax({
-                    url: "http://127.0.0.1:10019/ou/selectPeriod/HRADJ",
+                    url: "/ou/selectPeriod/HRADJ",
                     method: "POST",
                     dataType: "json",
                     data: postJson,
@@ -642,7 +642,7 @@ sap.ui.define([
 
             var postJson = JSON.stringify(postBody);
             $.ajax({
-                url: "http://127.0.0.1:10019/ou/selectOUBySearchModelByType/HRADJ",
+                url: "/ou/selectOUBySearchModelByType/HRADJ",
                 method: "POST",
                 data: postJson,
                 dataType: "json",
@@ -684,7 +684,7 @@ sap.ui.define([
 
             var postJson = JSON.stringify(postBody);
             $.ajax({
-                url: "http://127.0.0.1:10019/ou/selectOUBySearchModelByType/HRADJ",
+                url: "/ou/selectOUBySearchModelByType/HRADJ",
                 method: "POST",
                 data: postJson,
                 dataType: "json",
@@ -731,11 +731,11 @@ sap.ui.define([
 
             }
 
-            var uploadUrl = "http://127.0.0.1:10019/excel/ou/import" + "/WANGYIQIONG" + "/" + type + "/" + period;
+            var uploadUrl = "/excel/ou/import" + "/WANGYIQIONG" + "/" + type + "/" + period;
             this.byId("fileUploader").setUploadUrl(uploadUrl);
             var that = this;
             $.ajax({
-                url: "http://127.0.0.1:10019/period/getAllPeriodListByType/" + type,
+                url: "/period/getAllPeriodListByType/" + type,
                 method: "GET",
                 dataType: "json",
                 crossDomain: true,
@@ -869,7 +869,7 @@ sap.ui.define([
                 dialog.open();
 
                 $.ajax({
-                    url: "http://127.0.0.1:10019/ou/batchSave",
+                    url: "/ou/batchSave",
                     method: "POST",
                     dataType: "json",
                     data: postJson,
@@ -892,7 +892,7 @@ sap.ui.define([
             //保存初始记录到log--year quarter type org effective dladjust dljustification idladjust idljustification
             if (postLog.length > 0) {
                 $.ajax({
-                    url: "http://127.0.0.1:10019/ouadjust/batchSave",
+                    url: "/ouadjust/batchSave",
                     method: "POST",
                     dataType: "json",
                     data: postJsonLog,
