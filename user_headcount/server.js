@@ -3,13 +3,9 @@
 const express = require('express');
 const passport = require('passport');
 const xsenv = require('@sap/xsenv');
-const hana = require('@sap/hana-client');
-//var hdbext = require('@sap/hdbext');
-
-
 const JWTStrategy = require('@sap/xssec').JWTStrategy;
 const app = express();
-
+const services = xsenv.getServices({ uaa: 'headcount_uaa' });
 
 passport.use(new JWTStrategy(services.uaa));
 
