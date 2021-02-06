@@ -54,6 +54,7 @@
                                     <m:Label text="開始時間" />
                                     <ui:template>
                                         <m:DatePicker	value="{detail>effectiveDte}"  	valueFormat="yyyy-MM-dd"
+                                        displayFormat="yyyy-MM-dd"
                                          editable="{= ${detail>type} === '' ? true : false}"/>
                                     </ui:template>
                                 </ui:Column>

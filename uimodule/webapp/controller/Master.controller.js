@@ -339,7 +339,7 @@ sap.ui.define([
 
             if (selectedPeriod != null) {
                 var type = this.byId("comType").getSelectedKey();
-                var uploadUrl = "/excel/ou/import" + "/WANGYIQIONG" + "/" + type + "/" + selectedPeriod;
+                var uploadUrl = "/excel/ou/import" + "/WANGYIQIONG" + "/" + type + "/" + selectedPeriod.getKey();
                 this.byId("fileUploader").setUploadUrl(uploadUrl);
 
 
