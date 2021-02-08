@@ -11,7 +11,15 @@ sap.ui.define([
         onInit: function () {
             this.oRouter = this.getOwnerComponent().getRouter();
             this.oModel = this.getOwnerComponent().getModel();
+            //change local or cloud
+            this.local = true;
+            this.cloud = false;
 
+            if (this.local) {
+                this.url = "http://127.0.0.1:10019";
+            } else {
+                this.url = "";
+            }
             this.oRouter.getRoute("detail").attachPatternMatched(this._onProductMatched, this);
         },
         handleFullScreen: function () {
@@ -45,7 +53,7 @@ sap.ui.define([
                 var that = this;
                 var postJson = JSON.stringify(postBody);
                 $.ajax({
-                    url: "/ouadjust/selectOuAdjust",
+                    url: this.url + "/ouadjust/selectOuAdjust",
                     method: "POST",
                     dataType: "json",
                     data: postJson,
@@ -107,7 +115,7 @@ sap.ui.define([
             var postJson = JSON.stringify(obj);
             var that = this;
             $.ajax({
-                url: "/ouadjust/createOuAdjustByPrimary",
+                url: this.url + "/ouadjust/createOuAdjustByPrimary",
                 method: "POST",
                 dataType: "json",
                 data: postJson,
