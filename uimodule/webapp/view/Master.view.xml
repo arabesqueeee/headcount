@@ -177,8 +177,7 @@
 			                                	key="disOrg" >
                                                 <ui:Table
                 	                rows="{Orglist>/OrgCollection}"
-                                    visibleRowCount="{= ${Orglist>/OrgCollection}.length}"
-                                  
+                                    visibleRowCount="{= ${Orglist>/OrgCollection}.length}" 
                                     id="orgListCollection"
 				                    ariaLabelledBy="title">
                                                     <ui:extension>
@@ -414,6 +413,16 @@
                         </IconTabFilter>
                     </items>
                 </IconTabBar>
+                <footer>
+                    <OverflowToolbar>
+                        <Button id="messageViewBtn" 
+                        icon= "sap-icon://message-error" 	
+                        type="Negative" 
+                        press=".handleMessageViewPress"
+				     	ariaHasPopup="Dialog"/>
+                        <ToolbarSpacer/>
+                    </OverflowToolbar>
+                </footer>
             </Page>
         </pages>
     </App>

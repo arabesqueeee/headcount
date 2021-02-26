@@ -28,7 +28,7 @@
     "shx": "^0.3.3",
     "ui5-middleware-cfdestination": "^0.3.0",
     "ui5-middleware-livereload": "^0.5.1",
-    "ui5-task-zipper": "^0.4.0"
+    "ui5-task-zipper": "^0.4.1"
   },
   "ui5": {
     "dependencies": [

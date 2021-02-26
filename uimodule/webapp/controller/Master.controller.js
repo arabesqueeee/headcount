@@ -3,17 +3,23 @@ sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-    'sap/ui/model/Sorter',
-    'sap/m/MessageBox',
-    "sap/m/MessageToast"
+    "sap/m/MessageToast",
+    'sap/ui/core/IconPool',
+    'sap/m/Dialog',
+    'sap/m/Button',
+    'sap/m/MessageView',
+    'sap/m/MessagePopoverItem'
 
-], function (JSONModel, Controller, Filter, FilterOperator, Sorter, MessageBox, MessageToast) {
+], function (JSONModel, Controller, Filter, FilterOperator, MessageToast, IconPool, Dialog, Button, MessageView, MessagePopoverItem) {
     "use strict";
-
+    var oMessageTemplate = new MessagePopoverItem({
+        title: '{mess>description}'
+    });
     return Controller.extend("com.tsmc.headcount.controller.Master", {
         onInit: function () {
             this.oRouter = this.getOwnerComponent().getRouter();
             this._bDescendingSort = false;
+
             this._initData();
         },
         onListItemPress: function (oEvent) {
@@ -21,7 +27,7 @@ sap.ui.define([
                 orgPath = oEvent.getSource().getBindingContext("adjust").getPath();
             var orgDetail = this.getView().getModel("adjust").getProperty(orgPath);
             var passPara = orgDetail.year + "#" + orgDetail.quarter + "#" + orgDetail.org + "#" +
-                window.encodeURIComponent(orgDetail.orgName);
+                winadow.encodeURIComponent(orgDetail.orgName);
             this.oRouter.navTo("detail", { layout: oNextUIState.layout, product: passPara });
 
             var oItem = oEvent.getSource();
@@ -31,6 +37,16 @@ sap.ui.define([
             this.iIndex = oParent.indexOfItem(oItem);
         },
         _initData: function () {
+            //change local or cloud
+            this.local = false;
+            this.cloud = true;
+            if (this.local) {
+                this.url = "http://127.0.0.1:10019";
+                sap.ui.getCore().userid = 'wang.yiqiong@accenture.com';
+            } else {
+                this.url = "";
+            }
+
             var obk1 = {
                 "list": [{
                     "Id": "Q1",
@@ -51,7 +67,7 @@ sap.ui.define([
             var obk2 = {
                 "list": [{
                     "Id": "Y",
-                    "Text": "開放"
+                    "Text": "開啟"
                 }, {
                     "Id": "N",
                     "Text": "關閉"
@@ -77,25 +93,38 @@ sap.ui.define([
             this.byId("adjustTable").setVisible(false);
 
             $.ajax({
-                url: "/user/user",
+                url: "/user-api/currentUser",
                 method: "GET",
                 dataType: "json",
                 async: false,
                 success: function (data) {
-                    sap.ui.getCore().userid = data.id;
+                    sap.ui.getCore().userid = data.email;
                 },
                 error: function () {
                 }
             });
-            //change local or cloud
-            this.local = true;
-            this.cloud = false;
 
-            if (this.local) {
-                this.url = "http://127.0.0.1:10019";
-            } else {
-                this.url = "";
+            if (sap.ui.getCore().userid != undefined) {
+                $.ajax(
+                    {
+                        url: this.url + "/ecuser/getEmpId/" + sap.ui.getCore().userid,
+                        method: "GET",
+                        dataType: "json",
+                        async: false,
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("Content-Type", "application/json");
+                        },
+                        success: function (data) {
+                            sap.ui.getCore().userid = data.result.empId;
+                        },
+                        error: function () {
+
+                        }
+                    });
             }
+
+            this.byId("wizardContentPage").setShowFooter(false);
+
         },
         onSearch: function (oEvent) {
             var oTableSearchState = [],
@@ -231,9 +260,9 @@ sap.ui.define([
                         var period = {};
                         period.year = that.byId("dateYear").getDateValue().getFullYear();
                         period.quarter = that.byId("quarterSelect").getSelectedKey();
-                        period.active = that.byId("statusSelect").getSelectedKey();
-                        that.getView().getModel("comQuarter").getProperty("/QuarterCollection").push(period);
-                        that.getView().getModel("comQuarter").refresh();
+                        period.active = that.byId("statusSelect")._getSelectedItemText();
+                        that.getView().getModel("combox").getProperty("/QuarterCollection").push(period);
+                        that.getView().getModel("combox").refresh();
                     } else {
                         MessageToast.show("創建期間失敗");
                     }
@@ -394,15 +423,71 @@ sap.ui.define([
             var response = JSON.parse(oEvent.getParameter("responseRaw"));
             if (response.success == true) {
                 var jsn = {};
-                jsn.OrgCollection = response.result.data;
                 if (response.result.messageList == null) {
                     sap.m.MessageToast.show("文件上傳成功");
+                    jsn.OrgCollection = response.result.data;
                     this.getView().setModel(new JSONModel(jsn), "Org");
-                    this.byId("orgCollection").setVisible(true);
+                } else {
+                    this.byId("wizardContentPage").setShowFooter(true);
+                    //用 response.result.messageList填充	  aMockMessages  
+                    this.aMockMessages = [];
+
+                    var that = this;
+                    response.result.messageList.forEach(function (sMessage) {
+                        var mess = {};
+                        mess.description = sMessage;
+                        that.aMockMessages.push(mess);
+                    });
+                    var messJsn = {};
+                    messJsn.list = this.aMockMessages;
+                    this.getView().setModel(new JSONModel(messJsn), "mess");
+                    var oBackButton = new Button({
+                        icon: IconPool.getIconURI("nav-back"),
+                        visible: false,
+                        press: function () {
+                            that.oMessageView.navigateBack();
+                            this.setVisible(false);
+                        }
+                    });
+                    this.oMessageView = new MessageView({
+                        showDetailsPageHeader: false,
+                        itemSelect: function () {
+                            oBackButton.setVisible(true);
+                        },
+                        items: {
+                            path: 'mess>/list',
+                            template: oMessageTemplate
+                        },
+                        groupItems: true
+                    });
+                    this.getView().addDependent(this.oMessageView);
+
+                    this.oDialog = new Dialog({
+                        content: this.oMessageView,
+                        contentHeight: "50%",
+                        contentWidth: "50%",
+                        endButton: new Button({
+                            text: "Close",
+                            press: function () {
+                                this.getParent().close();
+                            }
+                        }),
+                        customHeader: new sap.m.Bar({
+                            contentMiddle: [
+                                new sap.m.Text({ text: "Excel上傳錯誤" })
+                            ],
+                            contentLeft: [oBackButton]
+                        }),
+                        verticalScrolling: false
+                    });
+
                 }
             } else {
                 sap.m.MessageToast.show("文件上傳失敗");
             }
+
+            this.byId("orgCollection").setVisible(true);
+
             this.byId("fileUploader").clear();
         },
         handleDownloadTemplate: function () {
@@ -521,6 +606,7 @@ sap.ui.define([
             var tableData = this.getView().getModel("Orglist").getProperty("/OrgCollection");
             var postData = [];
             var piece = {};
+            var that = this;
             for (var i = 0; i < selectedIndex.length; i++) {
                 var rowData = tableData[selectedIndex[i]];
                 piece.year = rowData.year;
@@ -546,6 +632,15 @@ sap.ui.define([
                     success: function (data) {
                         if (data.success == true) {
                             MessageToast.show("刪除成功");
+                            //remove 
+                            var selectedIndex = that.byId("orgListCollection").getSelectedIndices();
+                            for (var j = 0; j < selectedIndex.length; j++) {
+
+                                that.getView().getModel("Orglist").getProperty("/OrgCollection").splice(selectedIndex[j], 1);
+                            }
+                            that.getView().getModel("Orglist").refresh();
+
+
                         } else {
                             MessageToast.show("刪除失敗");
                         }
@@ -924,6 +1019,11 @@ sap.ui.define([
             } else {
                 return parseInt(num);
             }
+        },
+
+        handleMessageViewPress: function (oEvent) {
+            this.oMessageView.navigateBack();
+            this.oDialog.open();
         }
 
     });

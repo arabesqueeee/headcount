@@ -12,8 +12,8 @@ sap.ui.define([
             this.oRouter = this.getOwnerComponent().getRouter();
             this.oModel = this.getOwnerComponent().getModel();
             //change local or cloud
-            this.local = true;
-            this.cloud = false;
+            this.local = false;
+            this.cloud = true;
 
             if (this.local) {
                 this.url = "http://127.0.0.1:10019";
