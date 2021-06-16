@@ -8,14 +8,18 @@ sap.ui.define([
     'sap/m/Dialog',
     'sap/m/Button',
     'sap/m/MessageView',
-    'sap/m/MessagePopoverItem'
+    'sap/m/MessagePopoverItem',
+    'sap/ui/export/Spreadsheet',
+    "com/tsmc/headcount/model/formatter"
 
-], function (JSONModel, Controller, Filter, FilterOperator, MessageToast, IconPool, Dialog, Button, MessageView, MessagePopoverItem) {
+], function (JSONModel, Controller, Filter, FilterOperator, MessageToast, IconPool, Dialog, Button, MessageView, MessagePopoverItem, Spreadsheet,formatter) {
     "use strict";
     var oMessageTemplate = new MessagePopoverItem({
         title: '{mess>description}'
     });
     return Controller.extend("com.tsmc.headcount.controller.Master", {
+
+        formatter: formatter,
         onInit: function () {
             this.oRouter = this.getOwnerComponent().getRouter();
             this._bDescendingSort = false;
@@ -27,7 +31,7 @@ sap.ui.define([
                 orgPath = oEvent.getSource().getBindingContext("adjust").getPath();
             var orgDetail = this.getView().getModel("adjust").getProperty(orgPath);
             var passPara = orgDetail.year + "#" + orgDetail.quarter + "#" + orgDetail.org + "#" +
-                winadow.encodeURIComponent(orgDetail.orgName);
+                window.encodeURIComponent(orgDetail.orgName);
             this.oRouter.navTo("detail", { layout: oNextUIState.layout, product: passPara });
 
             var oItem = oEvent.getSource();
@@ -38,8 +42,12 @@ sap.ui.define([
         },
         _initData: function () {
             //change local or cloud
-            this.local = false;
-            this.cloud = true;
+          // this.local = false;
+            //this.cloud = true;
+       
+            this.local = true;
+            this.cloud = false;
+       
             if (this.local) {
                 this.url = "http://127.0.0.1:10019";
                 sap.ui.getCore().userid = 'wang.yiqiong@accenture.com';
@@ -104,7 +112,7 @@ sap.ui.define([
                 }
             });
 
-            if (sap.ui.getCore().userid != undefined) {
+            if (sap.ui.getCore().userid != undefined && this.cloud) {
                 $.ajax(
                     {
                         url: this.url + "/ecuser/getEmpId/" + sap.ui.getCore().userid,
@@ -377,7 +385,7 @@ sap.ui.define([
 
             if (selectedPeriod != null) {
                 var type = this.byId("comType").getSelectedKey();
-                var uploadUrl = this.url + "/excel/ou/import" + "/WANGYIQIONG" + "/" + type + "/" + selectedPeriod.getKey();
+                var uploadUrl = this.url + "/excel/ou/import" + "/" + sap.ui.getCore().userid + "/" + type + "/" + selectedPeriod.getKey();
                 this.byId("fileUploader").setUploadUrl(uploadUrl);
 
 
@@ -525,8 +533,8 @@ sap.ui.define([
                     "EMPID": "001601"
                 },
                 {
-                    "YEAR": "選填",
-                    "QUARTER": "選填",
+                    "YEAR": "必填",
+                    "QUARTER": "上傳類型為年度時可不填",
                     "ORGID": "必填",
                     "EMPID": "必填"
                 }
@@ -546,7 +554,13 @@ sap.ui.define([
 
         },
         onAddRow: function () {
-            var selectedPeriod = this.getView().byId("comQuarter").getSelectedItem();
+            if (this.getView().byId("comType").getSelectedKey() == '01') {
+                var selectedPeriod = this.getView().byId("comYear").getSelectedItem();
+
+            } else {
+                var selectedPeriod = this.getView().byId("comQuarter").getSelectedItem();
+
+            }
             var org = {};
             org.Year = selectedPeriod.getKey().substring(0, 4);
             org.Quarter = selectedPeriod.getKey().substring(4, 6);
@@ -573,7 +587,12 @@ sap.ui.define([
             postBody.quarter = orgModel.Quarter;
             postBody.org = orgModel.OrgID;
             postBody.empId = orgModel.EmpID;
-            postBody.lstUpdUsr = 'WANGYIQIONG';
+            postBody.lstUpdUsr = sap.ui.getCore().userid;
+            postBody.type = this.getView().byId("comType").getSelectedKey();
+            if (postBody.org == "" || postBody.empId == "") {
+                MessageToast.show("創建失敗");
+                return;
+            }
             var that = this;
             var postJson = JSON.stringify(postBody);
             $.ajax({
@@ -589,8 +608,29 @@ sap.ui.define([
                 success: function (data) {
                     if (data.success == true) {
                         MessageToast.show("創建成功");
+                        var selectedType = that.getView().byId("comType").getSelectedKey();
+                        var postBody = {};
+                        var selectedPeriod;
+                        if (selectedType == '01') {
+                            selectedPeriod = that.getView().byId("comYear").getSelectedItem();
+                            postBody.year = selectedPeriod.getKey().substring(0, 4);
+                            //By Year
+                        } else if (selectedType == '02') {
+                            //By Period
+                            selectedPeriod = that.getView().byId("comQuarter").getSelectedItem();
+                            postBody.year = selectedPeriod.getKey().substring(0, 4);
+                            postBody.quarter = selectedPeriod.getKey().substring(4, 6);
+                        }
+
+                        postBody.type = that.getView().byId("comType").getSelectedKey();;
+                        var postJson = JSON.stringify(postBody);
+
+                        that.displayOrgData(postJson);
+                        that.getView().getModel("Orglist").refresh();
+
+
                     } else {
-                        MessageToast.show("創建失敗");
+                        MessageToast.show("創建失敗：" + data.message);
                     }
                 },
                 error: function () {
@@ -605,10 +645,10 @@ sap.ui.define([
             var selectedIndex = this.byId("orgListCollection").getSelectedIndices();
             var tableData = this.getView().getModel("Orglist").getProperty("/OrgCollection");
             var postData = [];
-            var piece = {};
             var that = this;
             for (var i = 0; i < selectedIndex.length; i++) {
                 var rowData = tableData[selectedIndex[i]];
+                var piece = {};
                 piece.year = rowData.year;
                 piece.quarter = rowData.quarter;
                 piece.type = rowData.type;
@@ -633,13 +673,31 @@ sap.ui.define([
                         if (data.success == true) {
                             MessageToast.show("刪除成功");
                             //remove 
-                            var selectedIndex = that.byId("orgListCollection").getSelectedIndices();
-                            for (var j = 0; j < selectedIndex.length; j++) {
 
-                                that.getView().getModel("Orglist").getProperty("/OrgCollection").splice(selectedIndex[j], 1);
+                            //    that.getView().getModel("Orglist").refresh();
+
+                            var selectedType = that.getView().byId("comType").getSelectedKey();
+                            var postBody = {};
+                            var selectedPeriod;
+                            if (selectedType == '01') {
+                                selectedPeriod = that.getView().byId("comYear").getSelectedItem();
+                                postBody.year = selectedPeriod.getKey().substring(0, 4);
+                                //By Year
+                            } else if (selectedType == '02') {
+                                //By Period
+                                selectedPeriod = that.getView().byId("comQuarter").getSelectedItem();
+                                postBody.year = selectedPeriod.getKey().substring(0, 4);
+                                postBody.quarter = selectedPeriod.getKey().substring(4, 6);
                             }
+
+                            postBody.type = that.getView().byId("comType").getSelectedKey();;
+                            var postJson = JSON.stringify(postBody);
+
+                            that.displayOrgData(postJson);
                             that.getView().getModel("Orglist").refresh();
 
+
+                            that.byId("orgListCollection").clearSelection();
 
                         } else {
                             MessageToast.show("刪除失敗");
@@ -675,29 +733,32 @@ sap.ui.define([
             if (sKey === 'disOrg') {
                 //獲取系統中OU狀態為submit（03）的數據
                 //根據期間獲取org list STEP 3展示
-                var that = this;
-                $.ajax({
-                    url: this.url + "/ou/selectOUBySearchModelByType/OTHER",
-                    method: "POST",
-                    dataType: "json",
-                    data: postJson,
-                    async: false,
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Content-Type", "application/json");
-                    },
-                    success: function (data) {
-                        if (data.success == true) {
-                            var jsn = {};
-                            jsn.OrgCollection = data.result;
-                            that.getView().setModel(new JSONModel(jsn), "Orglist");
-                        } else {
-                        }
-                    },
-                    error: function () {
-                    }
-                });
+                this.displayOrgData(postJson);
 
             }
+        },
+        displayOrgData: function (postJson) {
+            var that = this;
+            $.ajax({
+                url: this.url + "/ou/selectOUBySearchModelByType/OTHER",
+                method: "POST",
+                dataType: "json",
+                data: postJson,
+                async: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Content-Type", "application/json");
+                },
+                success: function (data) {
+                    if (data.success == true) {
+                        var jsn = {};
+                        jsn.OrgCollection = data.result;
+                        that.getView().setModel(new JSONModel(jsn), "Orglist");
+                    } else {
+                    }
+                },
+                error: function () {
+                }
+            });
         },
         outsideFilterSelect: function (oEvent) {
             var sKey = oEvent.getParameter("key");
@@ -762,12 +823,13 @@ sap.ui.define([
                         var jsn = {};
                         jsn.OrgCollection = data.result;
                         for (var i = 0; i < jsn.OrgCollection.length; i++) {
+                       //     jsn.OrgCollection[i].statusCode = that.formatStatus(jsn.OrgCollection[i].status);
                             jsn.OrgCollection[i].idlBudgetProposal = that.custParseInt(jsn.OrgCollection[i].lstIdlAdjust) +
                                 that.custParseInt(jsn.OrgCollection[i].idlReqBudget) +
                                 that.custParseInt(jsn.OrgCollection[i].idlAdjBudget);
                             jsn.OrgCollection[i].dlBudgetProposal = jsn.OrgCollection[i].lstDlAdjust +
                                 that.custParseInt(jsn.OrgCollection[i].dlReqBudget) +
-                                that.custParseInt(jsn.OrgCollection[i].idlAdjBudget);
+                                that.custParseInt(jsn.OrgCollection[i].dlAdjBudget);
                             jsn.OrgCollection[i].finalProposal = jsn.OrgCollection[i].idlBudgetProposal + jsn.OrgCollection[i].dlBudgetProposal;
 
                         }
@@ -804,6 +866,8 @@ sap.ui.define([
                         var jsn = {};
                         jsn.OrgCollection = data.result;
                         for (var i = 0; i < jsn.OrgCollection.length; i++) {
+                        //    jsn.OrgCollection[i].statusCode = that.formatStatus(jsn.OrgCollection[i].status);
+                        
                             jsn.OrgCollection[i].idlBudgetProposal = that.custParseInt(jsn.OrgCollection[i].lstIdlAdjust) +
                                 that.custParseInt(jsn.OrgCollection[i].idlReqBudget) +
                                 that.custParseInt(jsn.OrgCollection[i].idlAdjBudget);
@@ -903,7 +967,50 @@ sap.ui.define([
             }
             return result;
         },
-        onRetrieve: function () {
+        onRetrieve: function (oEvent) {
+            var selectedIndex =  this.byId("adjustTable").getSelectedIndices();
+            var adjustTable = this.getView().getModel("adjust").getProperty("/OrgCollection");
+            var postData = [];
+            for(var i=0;i<adjustTable.length;i++){
+                if(i == selectedIndex[i] && ( adjustTable[i].status == '03' || adjustTable[i].status == 'Submit' )){
+                    adjustTable[i].status = '02';
+                    adjustTable[i].dlAdjBudget = 0;
+                    adjustTable[i].dlAllowance = 0;
+                    adjustTable[i].idlAdjBudget = 0;
+                    adjustTable[i].idlAllowance = 0; 
+                    adjustTable[i].lstUpdUsr = sap.ui.getCore().userid;
+                    postData.push(adjustTable[i]);
+                    break;
+                }
+            } 
+
+            //batchSave
+            if(postData.length > 0){
+                $.ajax({
+                    url: this.url + "/ou/batchSave",
+                    method: "POST",
+                    dataType: "json",
+                    data: JSON.stringify(postData),
+                    async: false,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Content-Type", "application/json");
+                    },
+                    success: function (data) {
+                        dialog.close();
+                        MessageToast.show("退回成功");
+                        //remove from 
+    
+                    },
+                    error: function () {
+                        dialog.close();
+                        MessageToast.show("退回失敗");
+                    }
+                });
+                this.onRefresh();
+            }else{
+                MessageToast.show("沒有可退回的條目");
+            }
+           
 
         },
         onSubmit: function (oEvent) {
@@ -912,63 +1019,52 @@ sap.ui.define([
             });
 
             var status = '05'; //完成状态
-
             var tableData = this.getView().getModel("adjust").getProperty("/OrgCollection");
+            var postData = [] ;
 
-            var postData = [], postLog = [];
+            var selectedIndex =  this.byId("adjustTable").getSelectedIndices();
+          
             for (var i = 0; i < tableData.length; i++) {
                 if (tableData[i].status == '05') {//已完成不再重复保存
                     continue;
                 }
-                var pieceJsn = {}, pieceLog = {};
-                pieceJsn.dlAdjBudget = tableData[i].dlAdjBudget;
-                pieceJsn.dlAllowance = tableData[i].dlAllowance;
-                pieceJsn.dlJustification = tableData[i].dlJustification;
-                pieceJsn.dlReqBudget = tableData[i].dlReqBudget;
-                pieceJsn.empId = tableData[i].empId;
-                pieceJsn.idlAdjBudget = tableData[i].idlAdjBudget;
-                pieceJsn.idlAllowance = tableData[i].idlAllowance;
-                pieceJsn.idlJustification = tableData[i].idlJustification;
-                pieceJsn.idlReqBudget = tableData[i].idlReqBudget;
-                pieceJsn.lstUpdUsr = "WANGYIQIONG"
-                pieceJsn.org = tableData[i].org;
-                pieceJsn.quarter = tableData[i].quarter;
-                pieceJsn.status = status; //02-Draft,03-Submit
-                pieceJsn.type = tableData[i].type;
-                pieceJsn.year = tableData[i].year;
-                postData.push(pieceJsn);
+                var pieceJsn = {} ; 
 
-                pieceLog.year = tableData[i].year;
-                pieceLog.quarter = tableData[i].quarter;
-                switch (pieceLog.quarter) {
-                    case 'Q1':
-                        pieceLog.effectiveDte = pieceLog.year + '-' + '01-01';
+                if(selectedIndex.length > 0){
+                    if(selectedIndex[i] != i){
+
+                        pieceJsn.dlJustification = tableData[i].dlJustification;
+                        pieceJsn.dlReqBudget = tableData[i].dlReqBudget;
+                        pieceJsn.empId = tableData[i].empId; 
+                        pieceJsn.idlJustification = tableData[i].idlJustification;
+                        pieceJsn.idlReqBudget = tableData[i].idlReqBudget;
+                        pieceJsn.lstUpdUsr = sap.ui.getCore().userid;
+                        pieceJsn.org = tableData[i].org;
+                        pieceJsn.quarter = tableData[i].quarter;
+                        pieceJsn.status = status; //02-Draft,03-Submit,05-完成
+                        pieceJsn.type = tableData[i].type;
+                        pieceJsn.year = tableData[i].year;
+                        postData.push(pieceJsn); 
                         break;
-                    case 'Q2':
-                        pieceLog.effectiveDte = pieceLog.year + '-' + '04-01';
-                        break;
-                    case 'Q3':
-                        pieceLog.effectiveDte = pieceLog.year + '-' + '07-01';
-                        break;
-                    case 'Q4':
-                        pieceLog.effectiveDte = pieceLog.year + '-' + '10-01';
-                        break;
-                    default:
+                    }
+                }else{
+                    pieceJsn.dlJustification = tableData[i].dlJustification;
+                    pieceJsn.dlReqBudget = tableData[i].dlReqBudget;
+                    pieceJsn.empId = tableData[i].empId; 
+                    pieceJsn.idlJustification = tableData[i].idlJustification;
+                    pieceJsn.idlReqBudget = tableData[i].idlReqBudget;
+                    pieceJsn.lstUpdUsr = sap.ui.getCore().userid;
+                    pieceJsn.org = tableData[i].org;
+                    pieceJsn.quarter = tableData[i].quarter;
+                    pieceJsn.status = status; //02-Draft,03-Submit,05-完成
+                    pieceJsn.type = tableData[i].type;
+                    pieceJsn.year = tableData[i].year;
+                    postData.push(pieceJsn);
                 }
-                pieceLog.org = tableData[i].org;
-                pieceLog.dlAdjust = tableData[i].dlAdjBudget;
-                pieceLog.idlAdjust = tableData[i].idlAdjBudget;
-                pieceLog.dlAllowance = tableData[i].dlAllowance;
-                pieceLog.idlAllowance = tableData[i].idlAllowance;
-                pieceLog.finalDL = this.custParseInt(tableData[i].dlReqBudget) + this.custParseInt(tableData[i].dlAdjBudget) + this.custParseInt(pieceLog.dlAllowance);
-                pieceLog.finalIDL = this.custParseInt(tableData[i].idlReqBudget) + this.custParseInt(tableData[i].idlAdjBudget) + this.custParseInt(tableData[i].idlAllowance);
-                pieceLog.lstUpdUsr = "WANGYIQIONG";
-                pieceLog.type = "02";
-                postLog.push(pieceLog);
-
+               
+              
             }
-            var postJson = JSON.stringify(postData);
-            var postJsonLog = JSON.stringify(postLog);
+            var postJson = JSON.stringify(postData); 
             if (postData.length > 0) {
                 dialog.open();
 
@@ -984,17 +1080,28 @@ sap.ui.define([
                     success: function (data) {
                         dialog.close();
                         MessageToast.show("保存成功");
-
+                    //update status code
+                      var selectedIndex =  this.byId("adjustTable").getSelectedIndices();
+                      if(selectedIndex.length>0){
+                        that.getView().getModel("adjust").setProperty("/OrgCollection/"+selectedIndex[0],'05');
+                      }else{
+                        var tableData = that.getView().getModel("adjust").getProperty("/OrgCollection");
+                        for(var i=0;i<tableData.length;i++){
+                            that.getView().getModel("adjust").setProperty("/OrgCollection/"+i,'05');
+                        }
+                      }
                     },
                     error: function () {
                         dialog.close();
                         MessageToast.show("保存失敗");
                     }
                 });
+            }else{
+                MessageToast.show("沒有可保存的項目");
             }
 
             //保存初始记录到log--year quarter type org effective dladjust dljustification idladjust idljustification
-            if (postLog.length > 0) {
+          /*  if (postLog.length > 0) {
                 $.ajax({
                     url: this.url + "/ouadjust/batchSave",
                     method: "POST",
@@ -1009,7 +1116,7 @@ sap.ui.define([
                     error: function () {
                     }
                 });
-            }
+            }*/
 
 
         },

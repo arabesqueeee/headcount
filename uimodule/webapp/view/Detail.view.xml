@@ -47,66 +47,121 @@
                                 <ui:extension>
                                     <m:OverflowToolbar>
                                         <m:ToolbarSpacer/>
+                                        <m:Button visible="false" icon="sap-icon://synchronize"   press="onRefresh" type="Transparent" id="refresh" text="刷新"/>
                                         <m:Button  icon="sap-icon://add" press="onNew" type="Transparent" id="onNew" text="新增"/>
                                     </m:OverflowToolbar>
                                 </ui:extension>
-                                <ui:Column width='8em'>
-                                    <m:Label text="開始時間" />
-                                    <ui:template>
+                                <ui:Column width="11%" >
+                                    <m:Label text="Effective Date"  />
+                                    <ui:template >
                                         <m:DatePicker	value="{detail>effectiveDte}"  	valueFormat="yyyy-MM-dd"
                                         displayFormat="yyyy-MM-dd"
                                          editable="{= ${detail>type} === '' ? true : false}"/>
                                     </ui:template>
                                 </ui:Column>
-                                <ui:Column width='5em'  >
-                                    <m:Label text="IDL調整" />
-                                    <ui:template>
-                                        <m:Input value="{detail>idlAdjust}" type="Number"    editable="{= ${detail>type} === '' ? true : false}"/>
-                                    </ui:template>
-                                </ui:Column>
-                                <ui:Column width='7em' >
-                                    <m:Label text="IDL調整原因" />
-                                    <ui:template>
-                                        <m:Input value="{detail>idlJustification}"   editable="{= ${detail>type} === '' ? true : false}"/>
-                                    </ui:template>
-                                </ui:Column>
-                                <ui:Column width='6em'  >
-                                    <m:Label text="DL調整" />
+                                <ui:Column  width="6%" headerSpan="2,1"  >
+                                 <ui:multiLabels>
+                                        <m:Label text="H/C Adjustment" textAlign="Center" width="100%"/> 
+                                        <m:ObjectStatus text="DL" textAlign="Center"  width="100%"  state="Information"/> 
+                                       
+                                    	</ui:multiLabels>   
                                     <ui:template>
                                         <m:Input value="{detail>dlAdjust}"   type="Number"  editable="{= ${detail>type} === '' ? true : false}"/>
                                     </ui:template>
                                 </ui:Column>
-                                <ui:Column width='7em' >
-                                    <m:Label text="DL調整原因" />
+                                 <ui:Column  width="6%"    >
+                                     <ui:multiLabels>
+                                        <m:Label text="H/C Adjustment" textAlign="Center" width="100%"/>   
+                                        <m:ObjectStatus text="IDL" textAlign="Center"  width="100%"  state="Error"/> 
+                                    	</ui:multiLabels> 
+                                    <ui:template>
+                                        <m:Input value="{detail>idlAdjust}" type="Number"    editable="{= ${detail>type} === '' ? true : false}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                
+                                <ui:Column width="8%" headerSpan="2,1" >
+                                     <ui:multiLabels>
+                                        <m:Label text="H/C Adjustment Reason" textAlign="Center" width="100%"/>  
+                                           <m:ObjectStatus text="DL" textAlign="Center"  width="100%"  state="Information"/> 
+                                      
+                                    	</ui:multiLabels> 
                                     <ui:template>
                                         <m:Input value="{detail>dlJustification}"   editable="{= ${detail>type} === '' ? true : false}"/>
                                     </ui:template>
                                 </ui:Column>
-                                <ui:Column width='7em' >
-                                    <m:Label text="DL Allowance"  />
+                               
+                                <ui:Column width="8%" >
+                                     <ui:multiLabels>
+                                        <m:Label text="H/C Adjustment Reason" textAlign="Center" width="100%"/>  
+                                           <m:ObjectStatus text="IDL"   state="Error"/> 
+                                    	</ui:multiLabels> 
+                                    <ui:template>
+                                        <m:Input value="{detail>idlJustification}"   editable="{= ${detail>type} === '' ? true : false}"/>
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column  headerSpan="2,1" >
+                                      <ui:multiLabels>
+                                        <m:Label text="Allowance" textAlign="Center" width="100%"/>  
+                                          <m:ObjectStatus text="DL"   state="Information"/> 
+                                      
+                                    	</ui:multiLabels> 
                                     <ui:template>
                                         <m:Input value="{detail>dlAllowance}"   type="Number"  editable="{= ${detail>type} === '' ? true : false}"/>
                                     </ui:template>
                                 </ui:Column>
-                                <ui:Column width='7em'>
-                                    <m:Label text="IDL Allowance" />
+                                <ui:Column  >
+                                     <ui:multiLabels>
+                                        <m:Label text="Allowance" textAlign="Center" width="100%"/>  
+                                            <m:ObjectStatus text="IDL"    state="Error"/> 
+                                   	</ui:multiLabels> 
                                     <ui:template>
                                         <m:Input value="{detail>idlAllowance}"   editable="{= ${detail>type} === '' ? true : false}"/>
                                     </ui:template>
                                 </ui:Column>
-                                <ui:Column width='7em'>
-                                    <m:Label text="DL调整結果" />
-                                    <ui:template>
-                                        <m:Text text="{detail>finalDL}"/>
+                                <ui:Column width="8%" headerSpan="2,1" >
+                                 <ui:multiLabels>
+                                        <m:Label text="H/C Adjust Result" textAlign="Center" width="100%"/>  
+                                         <m:ObjectStatus text="DL"   state="Information"/> 
+                                      
+                                    	</ui:multiLabels> 
+                                    <ui:template> 
+                                         <m:ObjectStatus text="{detail>finalDL}"   state="Information"/> 
+                             
                                     </ui:template>
                                 </ui:Column>
-                                <ui:Column width='7em'>
-                                    <m:Label text="IDL调整結果" />
+                                <ui:Column  width="8%">
+                                    <ui:multiLabels>
+                                        <m:Label text="H/C Adjust Result" textAlign="Center" width="100%"/>  
+                                              <m:ObjectStatus text="IDL" textAlign="Center"  width="100%"  state="Error"/> 
+                            
+                                    	</ui:multiLabels> 
                                     <ui:template>
-                                        <m:Text text="{detail>finalIDL}"  />
+                                    <m:ObjectStatus  text="{detail>finalIDL}"     state="Error"/> 
+                             
                                     </ui:template>
                                 </ui:Column>
-                                <ui:Column width="2em">
+                                <ui:Column headerSpan="2,1" >
+                                   <ui:multiLabels>
+                                        <m:Label text="Allowance Adjust Result" textAlign="Center" width="100%"/>  
+                                        <m:ObjectStatus text="DL" textAlign="Center"  width="100%"  state="Information"/> 
+                                      
+                                    	</ui:multiLabels> 
+                                    <ui:template>
+                                    <m:ObjectStatus text="{adjust>finalDLAllowance}" state="Information"/>   
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column  >
+                                     <ui:multiLabels>
+                                        <m:Label text="Allowance Adjust Result" textAlign="Center" width="100%"/>  
+                                             <m:ObjectStatus text="IDL" textAlign="Center"  width="100%"  state="Error"/> 
+                            
+                                    	</ui:multiLabels>
+                                    <ui:template>
+                                     <m:ObjectStatus text="{detail>finalIDLAllowance}"   state="Error"/> 
+                                      
+                                    </ui:template>
+                                </ui:Column>
+                                <ui:Column   width="4%" >
                                     <ui:template>
                                         <m:HBox>
                                             <m:Button icon="sap-icon://save" type="Transparent" press="onSaveNewItem"    visible="{= ${detail>type} === '' ? true : false}" />

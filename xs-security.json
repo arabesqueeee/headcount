@@ -10,10 +10,19 @@
   ],
   "role-templates": [
     {
-      "name": "EC_Headcount",
+      "name": "SCP_Headcount",
       "description": "UAA",
       "scope-references": [
         "uaa.user"
+      ]
+    }
+  ],
+  "role-collections": [
+    {
+      "name": "SCP_Headcount",
+      "description": "SCP_Headcount",
+      "role-template-references": [
+        "$XSAPPNAME.SCP_Headcount"
       ]
     }
   ]
